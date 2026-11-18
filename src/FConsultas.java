@@ -7,36 +7,34 @@ import javax.swing.JOptionPane;
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
-
 /**
  *
  * @author laloparrot
  */
 public class FConsultas extends javax.swing.JFrame {
-    
+
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(FConsultas.class.getName());
 
     ArrayList<ArrayList<String>> datos = new ArrayList();
     ArrayList<String> series = new ArrayList();
-    
+
     GraficaXY chart;
-    
+
     Conexion cnx = new Conexion();
-    
+
     public FConsultas() {
         initComponents();
-        
+
         setTitle("Gerente");
-        setSize(848, 500);
+        setSize(980, 860);
         setLocationRelativeTo(null);
         getContentPane().setBackground(Color.decode("#262840"));
-        
-        
+
         if (cnx.conectar("localhost", "insulina", "root", "admin1234") == 0) {
             JOptionPane.showMessageDialog(this, "Sin conexión. La ventana se cerrará...");
             System.exit(0);
         }
-        
+
     }
 
     /**
@@ -70,7 +68,7 @@ public class FConsultas extends javax.swing.JFrame {
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                .addContainerGap(247, Short.MAX_VALUE)
+                .addContainerGap(387, Short.MAX_VALUE)
                 .addComponent(LUsuario, javax.swing.GroupLayout.PREFERRED_SIZE, 393, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(210, 210, 210))
         );
@@ -82,7 +80,7 @@ public class FConsultas extends javax.swing.JFrame {
                 .addContainerGap(23, Short.MAX_VALUE))
         );
 
-        getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 850, -1));
+        getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 990, -1));
 
         jToolBar1.setBackground(new java.awt.Color(102, 0, 102));
         jToolBar1.setRollover(true);
@@ -94,7 +92,7 @@ public class FConsultas extends javax.swing.JFrame {
         BVecesMed.addActionListener(this::BVecesMedActionPerformed);
         jToolBar1.add(BVecesMed);
 
-        getContentPane().add(jToolBar1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 60, 850, 50));
+        getContentPane().add(jToolBar1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 60, 990, 50));
 
         TConsultas.setBackground(new java.awt.Color(26, 27, 48));
         TConsultas.setForeground(new java.awt.Color(169, 177, 214));
@@ -120,31 +118,42 @@ public class FConsultas extends javax.swing.JFrame {
         });
         jScrollPane1.setViewportView(TConsultas);
 
-        getContentPane().add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 310, 820, 190));
+        getContentPane().add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 680, 940, 140));
 
         PGrafica.setBackground(new java.awt.Color(38, 40, 64));
         PGrafica.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
-        getContentPane().add(PGrafica, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 110, 850, 200));
+        getContentPane().add(PGrafica, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 110, 960, 570));
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
     private void TConsultasMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_TConsultasMousePressed
-         
+
     }//GEN-LAST:event_TConsultasMousePressed
 
     private void BVecesMedActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BVecesMedActionPerformed
+        //limpiar
+        datos.clear();
+        series.clear();
         
-        String query = "SELECT nombre, COUNT(*) AS num_veces FROM detallereceta, medicamento WHERE clave = medicamento_clave GROUP BY clave";
+        String query = "SELECT m.nombre, COUNT(*) AS num_veces " +
+                       "FROM detallereceta d " +
+                       "INNER JOIN medicamento m ON m.idmedicamento = d.idmedicamento " +
+                       "GROUP BY m.idmedicamento, m.nombre";
+        
         datos = cnx.consultar(query);
-        series.add("totales");
+        series.add("Totales");
         
         PGrafica.removeAll();
-        chart = new GraficaXY("veces que se ha recesatod un medicamento", "Medicamento", "Veces", "Series", "datos");
+        PGrafica.setLayout(new java.awt.BorderLayout());
+        chart = new GraficaXY("Veces que se ha recetado un medicamento", "Medicamento", "Veces", series, datos);
         
-        PGrafica.add(chart.chartPanel);
-        PGrafica.updateUI();
+        PGrafica.add(chart.chartPanel, java.awt.BorderLayout.CENTER);
+        PGrafica.revalidate();
+        PGrafica.repaint();
+        
         cnx.entablar(query, TConsultas, 60, 40);
+        
     }//GEN-LAST:event_BVecesMedActionPerformed
 
     /**
